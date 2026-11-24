@@ -1,0 +1,14 @@
+{
+  "enabled": false,
+  "ads": [
+    {
+      "title": "My first banner",
+      "image": "banner.png",
+      "link": "https://example.com",
+      "start": "2026-11-01",
+      "end": "2026-12-31",
+      "priority": 1,
+      "enabled": true
+    }
+  ]
+}
