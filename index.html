@@ -270,7 +270,8 @@ input:focus,select:focus,button:focus-visible{
         </div>
         <div class="field">
           <label for="shift">Shift</label>
-          <select id="shift">
+          <select id="shift" required>
+            <option value="" selected disabled>Select shift</option>
             <option value="A">A Shift (5 AM – 1 PM)</option>
             <option value="B">B Shift (1 PM – 9 PM)</option>
             <option value="C">C Shift (9 PM – 5 AM)</option>
@@ -283,17 +284,17 @@ input:focus,select:focus,button:focus-visible{
       <div class="field">
         <label for="ot">Overtime (hours)</label>
         <input type="number" id="ot" min="0" step="0.5" value="0" inputmode="decimal">
-        <p class="hint">A/B/C shift = 8 hrs, 1 duty. Day/Night shift = 12 hrs, so this auto-fills to 4 hrs OT — edit it if your actual extra hours were different. Every 8 hrs of OT you build up counts as one more duty.</p>
+        <p class="hint">A/B/C shift = 8 hrs = 1 duty. Day/Night shift = 12 hrs = 1.5 duty (4 hrs OT auto-fills — edit if your actual extra hours were different). Every 8 hrs of OT = 1 duty.</p>
       </div>
 
       <div class="field">
         <label>Canteen meals</label>
         <div class="meal-row">
           <button type="button" class="meal-toggle" id="lunchBtn" data-eaten="false">
-            <span class="mark">✗</span> Lunch
+            <span class="mark"></span> Lunch
           </button>
           <button type="button" class="meal-toggle" id="dinnerBtn" data-eaten="false">
-            <span class="mark">✗</span> Dinner
+            <span class="mark"></span> Dinner
           </button>
         </div>
       </div>
@@ -315,7 +316,7 @@ input:focus,select:focus,button:focus-visible{
     <div class="stats">
       <div class="stat">
         <div class="n" id="totalDays">0</div>
-        <div class="l">Total duty days (incl. OT bonus)</div>
+        <div class="l">Total duty (incl. OT)</div>
       </div>
       <div class="stat">
         <div class="n" id="extraDuty">0</div>
@@ -323,7 +324,7 @@ input:focus,select:focus,button:focus-visible{
       </div>
       <div class="stat">
         <div class="n" id="totalOt">0</div>
-        <div class="l">OT not yet converted (hrs)</div>
+        <div class="l">Total OT (hrs)</div>
       </div>
       <div class="stat" style="grid-column:1/-1">
         <div class="l" style="margin-bottom:6px">Shift-wise count</div>
@@ -356,7 +357,7 @@ input:focus,select:focus,button:focus-visible{
     <div class="field">
       <label for="salaryInput">Monthly salary (₹)</label>
       <input type="number" id="salaryInput" min="0" step="1" placeholder="e.g. 14500" inputmode="decimal">
-      <p class="hint">Pay is for the days you actually worked, not every calendar day in the range. Each worked day is paid at that day's own month's rate (salary ÷ 28, 30 or 31), and every 8 hrs of built-up OT earns one more paid duty.</p>
+      <p class="hint">Pay is for the days you actually worked, not every calendar day in the range. Each worked day is paid at that day's own month's rate (salary ÷ 28, 30 or 31), and every 8 hrs of OT earns one more paid duty (so a 12-hr shift = 1.5 duty).</p>
     </div>
     <div class="row2" style="margin-top:10px">
       <div class="field">
@@ -379,7 +380,7 @@ input:focus,select:focus,button:focus-visible{
       </div>
       <div class="stat">
         <div class="n" id="calcOt">0</div>
-        <div class="l">OT not yet converted (hrs)</div>
+        <div class="l">Total OT (hrs)</div>
       </div>
       <div class="stat">
         <div class="n" id="calcLunch">0</div>
@@ -480,7 +481,7 @@ input:focus,select:focus,button:focus-visible{
 
   function setMealToggle(btn, eaten){
     btn.dataset.eaten = eaten ? 'true' : 'false';
-    btn.querySelector('.mark').textContent = eaten ? '✓' : '✗';
+    btn.querySelector('.mark').textContent = eaten ? '✓' : '';
   }
 
   function getMealToggle(btn){
@@ -538,37 +539,28 @@ input:focus,select:focus,button:focus-visible{
     return { from: iso(fromY, fromM, 25), to: iso(toY, toM, 25) };
   }
 
-  // Core duty/pay rule: every entry is worth 1 duty. A/B/C shifts are 8 hrs
-  // (no built-in OT); Day/Night shifts are 12 hrs, so they carry 4 hrs of OT
-  // by default. OT hours accumulate across the days in the period, and every
-  // full 8 hrs accumulated converts into one more paid duty (e.g. two 12-hour
-  // Day/Night shifts = 2 duties + 8 OT hrs = 1 extra duty = 3 duties total).
-  // Each duty is paid at its own calendar day's month rate (salary divided by
-  // that month's actual day count), so pay only ever reflects days actually worked.
+  // Core duty/pay rule: every entry is worth 1 duty, plus its overtime / 8.
+  // A/B/C shifts are 8 hrs = 1 duty. Day/Night shifts are 12 hrs, i.e. 4 hrs OT
+  // = 0.5 extra duty, so each counts as 1.5 duty (4 such shifts = 6 duties).
+  // Each duty is paid at its own calendar day's month rate (salary / days in month).
+  function r2(x){ return Math.round(x * 100) / 100; }
   function analyzePeriod(list, salary){
-    var sorted = list.slice().sort(function(a,b){ return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
-    var dutyDays = 0, extraDuty = 0, cumulativeOt = 0, rawOt = 0, lunches = 0, dinners = 0, pay = 0;
-    sorted.forEach(function(e){
+    var dutyDays = 0, extraDuty = 0, rawOt = 0, lunches = 0, dinners = 0, pay = 0;
+    list.forEach(function(e){
       var d = new Date(e.date + 'T00:00:00');
       var rate = salary > 0 ? (salary / daysInMonth(d.getFullYear(), d.getMonth())) : 0;
-      dutyDays += 1;
-      pay += rate;
+      var extra = e.ot / 8;
+      dutyDays += 1 + extra;
+      extraDuty += extra;
+      pay += rate * (1 + extra);
       rawOt += e.ot;
-      cumulativeOt += e.ot;
-      while (cumulativeOt >= 8){
-        cumulativeOt -= 8;
-        dutyDays += 1;
-        extraDuty += 1;
-        pay += rate;
-      }
       if (e.lunch) lunches++;
       if (e.dinner) dinners++;
     });
     return {
-      dutyDays: dutyDays,
-      extraDuty: extraDuty,
-      leftoverOt: Math.round(cumulativeOt * 10) / 10,
-      rawOt: Math.round(rawOt * 10) / 10,
+      dutyDays: r2(dutyDays),
+      extraDuty: r2(extraDuty),
+      rawOt: r2(rawOt),
       lunches: lunches,
       dinners: dinners,
       pay: pay
@@ -591,7 +583,7 @@ input:focus,select:focus,button:focus-visible{
     var r = analyzePeriod(list, salary);
     document.getElementById('calcDays').textContent = r.dutyDays;
     document.getElementById('calcExtraDuty').textContent = r.extraDuty;
-    document.getElementById('calcOt').textContent = r.leftoverOt;
+    document.getElementById('calcOt').textContent = r.rawOt;
     document.getElementById('calcLunch').textContent = r.lunches;
     document.getElementById('calcDinner').textContent = r.dinners;
     document.getElementById('calcPay').textContent = '₹' + Math.round(r.pay).toLocaleString('en-IN');
@@ -625,7 +617,8 @@ input:focus,select:focus,button:focus-visible{
     editingId = null;
     saveBtn.textContent = 'Save Entry';
     if (!lunchBtn.disabled && !findByDate(dateEl.value)){
-      otEl.value = autoOtFor(shiftEl.value);
+      shiftEl.value = '';
+      otEl.value = 0;
       setMealToggle(lunchBtn, false);
       setMealToggle(dinnerBtn, false);
     }
@@ -651,7 +644,7 @@ input:focus,select:focus,button:focus-visible{
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
-    if (!dateEl.value) return;
+    if (!dateEl.value || !shiftEl.value) return;
     var existing = findByDate(dateEl.value);
 
     if (existing && editingId === existing.id){
@@ -706,7 +699,7 @@ input:focus,select:focus,button:focus-visible{
 
     document.getElementById('totalDays').textContent = r.dutyDays;
     document.getElementById('extraDuty').textContent = r.extraDuty;
-    document.getElementById('totalOt').textContent = r.leftoverOt;
+    document.getElementById('totalOt').textContent = r.rawOt;
     document.getElementById('cntA').textContent = counts.A;
     document.getElementById('cntB').textContent = counts.B;
     document.getElementById('cntC').textContent = counts.C;
@@ -790,15 +783,7 @@ input:focus,select:focus,button:focus-visible{
     var sortedAsc = list.slice().sort(function(a,b){ return a.date < b.date ? -1 : 1; });
     var r = analyzePeriod(list, salary);
 
-    // Recompute each row's own duty count the same way analyzePeriod does,
-    // so the per-row figure and the summary total always agree.
-    var cumulativeOt = 0;
-    var dutyCountByIdx = sortedAsc.map(function(e){
-      var d = 1;
-      cumulativeOt += e.ot;
-      while (cumulativeOt >= 8){ cumulativeOt -= 8; d += 1; }
-      return d;
-    });
+    var dutyCountByIdx = sortedAsc.map(function(e){ return r2(1 + e.ot / 8); });
 
     var rows = [];
     rows.push(row('DUTY TRACKER REPORT'));
@@ -827,7 +812,6 @@ input:focus,select:focus,button:focus-visible{
     rows.push(row('Total Duty Days (incl. OT bonus)', r.dutyDays));
     rows.push(row('Extra Duty Earned From OT', r.extraDuty));
     rows.push(row('Total OT Logged (hrs)', r.rawOt));
-    rows.push(row('OT Not Yet Converted (hrs)', r.leftoverOt));
     rows.push(row('Total Lunches Eaten', r.lunches));
     rows.push(row('Total Dinners Eaten', r.dinners));
     if (r.pay > 0){
