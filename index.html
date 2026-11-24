@@ -1,0 +1,853 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#8a5a3b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Duty Tracker</title>
+
+
+<style>
+/* Layout: single-column form at top, stat tiles row, grouped entry list, download panel — a daily-log utility, not an editorial page */
+:root{
+  --bg:#f4f3ef;
+  --surface:#ffffff;
+  --border:#e1ddd3;
+  --fg:#242220;
+  --fg-muted:#6b6459;
+  --accent:#8a5a3b;
+  --accent-fg:#ffffff;
+  --danger:#b3432f;
+  --ok:#3f7d4f;
+  --shift-a:#c9a84c;
+  --shift-b:#8a5a3b;
+  --shift-c:#4a5568;
+  --shift-day:#5f8a5a;
+  --shift-night:#5a6a9e;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b1917;
+    --surface:#252220;
+    --border:#38342f;
+    --fg:#efece6;
+    --fg-muted:#a39b8d;
+    --accent:#d4a574;
+    --accent-fg:#201a14;
+    --danger:#e2796a;
+    --ok:#7fbb8c;
+    --shift-a:#e0c278;
+    --shift-b:#d4a574;
+    --shift-c:#8d99ab;
+    --shift-day:#8fc187;
+    --shift-night:#9aa8db;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1b1917;
+  --surface:#252220;
+  --border:#38342f;
+  --fg:#efece6;
+  --fg-muted:#a39b8d;
+  --accent:#d4a574;
+  --accent-fg:#201a14;
+  --danger:#e2796a;
+  --ok:#7fbb8c;
+  --shift-a:#e0c278;
+  --shift-b:#d4a574;
+  --shift-c:#8d99ab;
+  --shift-day:#8fc187;
+  --shift-night:#9aa8db;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:'Inter',system-ui,sans-serif;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:20px 40px;
+}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+h1{
+  font-size:1.5rem;
+  margin:4px 0 0;
+  font-weight:700;
+  letter-spacing:-0.01em;
+}
+.sub{color:var(--fg-muted);font-size:0.9rem;margin:0}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+}
+.card h2{
+  font-size:0.78rem;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--fg-muted);
+  margin:0 0 12px;
+  font-weight:600;
+}
+
+form{display:flex;flex-direction:column;gap:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label{font-size:0.82rem;color:var(--fg-muted)}
+.field .hint,.hint{font-size:0.74rem;color:var(--fg-muted);margin-top:2px}
+input,select{
+  font:inherit;
+  font-size:1rem;
+  padding:10px 12px;
+  border-radius:9px;
+  border:1px solid var(--border);
+  background:var(--bg);
+  color:var(--fg);
+  width:100%;
+}
+input:focus,select:focus,button:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:1px;
+}
+
+.btn{
+  font:inherit;
+  font-weight:600;
+  font-size:0.95rem;
+  padding:12px;
+  border-radius:9px;
+  border:none;
+  cursor:pointer;
+}
+.btn-primary{background:var(--accent);color:var(--accent-fg)}
+.btn-ghost{background:transparent;color:var(--danger);padding:6px 10px;font-size:0.82rem}
+.btn[disabled]{opacity:0.5;cursor:default}
+
+.lock-msg{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:10px 12px;
+  margin:0;
+  font-size:0.85rem;
+  color:var(--fg-muted);
+}
+.lock-msg button{
+  background:transparent;
+  border:none;
+  color:var(--accent);
+  font-weight:600;
+  font-size:0.85rem;
+  cursor:pointer;
+  white-space:nowrap;
+  padding:4px 0;
+}
+
+.meal-row{display:flex;gap:10px}
+.meal-toggle{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:10px 8px;
+  border-radius:9px;
+  border:1px solid var(--border);
+  background:var(--bg);
+  color:var(--fg-muted);
+  font:inherit;
+  font-size:0.88rem;
+  font-weight:600;
+  cursor:pointer;
+}
+.meal-toggle .mark{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.78rem;font-weight:700;
+  background:var(--border);color:var(--fg-muted);
+  flex-shrink:0;
+}
+.meal-toggle[data-eaten="true"]{border-color:var(--ok);color:var(--ok)}
+.meal-toggle[data-eaten="true"] .mark{background:var(--ok);color:#fff}
+.meal-toggle[disabled]{opacity:0.6;cursor:default}
+
+.month-pick{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.month-pick label{font-size:0.82rem;color:var(--fg-muted);white-space:nowrap}
+.month-pick input{width:auto;flex:1}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  min-width:0;
+}
+.stat .n{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .l{font-size:0.78rem;color:var(--fg-muted);margin-top:3px}
+
+.shift-split{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.chip{
+  flex:1 1 calc(33.333% - 5px);
+  min-width:62px;
+  text-align:center;
+  border-radius:7px;
+  padding:6px 4px;
+  font-size:0.72rem;
+  font-weight:600;
+  color:var(--accent-fg);
+}
+.chip .n{display:block;font-size:0.95rem}
+
+.entries{display:flex;flex-direction:column}
+.entry{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+  min-width:0;
+}
+.entry:last-child{border-bottom:none}
+.entry .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+.entry .d{font-weight:600;font-size:0.92rem;font-variant-numeric:tabular-nums}
+.entry .tags{font-size:0.8rem;color:var(--fg-muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.dot{
+  width:7px;height:7px;border-radius:50%;display:inline-block;margin-inline-end:4px;vertical-align:middle;
+}
+.mealicon{font-weight:700}
+.mealicon.yes{color:var(--ok)}
+.mealicon.no{color:var(--danger)}
+.empty{color:var(--fg-muted);font-size:0.9rem;text-align:center;padding:20px 0}
+
+.download-note{font-size:0.8rem;color:var(--fg-muted);margin:8px 0 0}
+
+@media (max-width:420px){
+  .row2{grid-template-columns:1fr}
+}
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>My Duty Tracker</h1>
+    <p class="sub">Keep a running record of your shifts, overtime and canteen meals</p>
+  </div>
+
+  <div class="card">
+    <h2>Personal Information</h2>
+    <div class="row2">
+      <div class="field">
+        <label for="nameInput">Name</label>
+        <input type="text" id="nameInput" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="mobileInput">Mobile number</label>
+        <input type="tel" id="mobileInput" placeholder="Your mobile number" autocomplete="tel" inputmode="tel">
+      </div>
+    </div>
+    <p class="hint">Saved on this device, and included at the top of your downloaded report.</p>
+  </div>
+
+  <div class="card">
+    <h2>New Entry</h2>
+    <form id="entryForm">
+      <div class="row2">
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date" required>
+        </div>
+        <div class="field">
+          <label for="shift">Shift</label>
+          <select id="shift">
+            <option value="A">A Shift (5 AM – 1 PM)</option>
+            <option value="B">B Shift (1 PM – 9 PM)</option>
+            <option value="C">C Shift (9 PM – 5 AM)</option>
+            <option value="Day">Day Shift (5 AM – 5 PM)</option>
+            <option value="Night">Night Shift (5 PM – 5 AM)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="ot">Overtime (hours)</label>
+        <input type="number" id="ot" min="0" step="0.5" value="0" inputmode="decimal">
+        <p class="hint">A/B/C shift = 8 hrs, 1 duty. Day/Night shift = 12 hrs, so this auto-fills to 4 hrs OT — edit it if your actual extra hours were different. Every 8 hrs of OT you build up counts as one more duty.</p>
+      </div>
+
+      <div class="field">
+        <label>Canteen meals</label>
+        <div class="meal-row">
+          <button type="button" class="meal-toggle" id="lunchBtn" data-eaten="false">
+            <span class="mark">✗</span> Lunch
+          </button>
+          <button type="button" class="meal-toggle" id="dinnerBtn" data-eaten="false">
+            <span class="mark">✗</span> Dinner
+          </button>
+        </div>
+      </div>
+
+      <p class="lock-msg" id="lockMsg" hidden>
+        <span>An entry is already saved for this date</span>
+        <button type="button" id="editBtn">Edit</button>
+      </p>
+      <button type="submit" class="btn btn-primary" id="saveBtn">Save Entry</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="month-pick">
+      <label for="month">Month</label>
+      <input type="month" id="month">
+    </div>
+    <h2 style="margin-bottom:10px">Monthly Summary</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="n" id="totalDays">0</div>
+        <div class="l">Total duty days (incl. OT bonus)</div>
+      </div>
+      <div class="stat">
+        <div class="n" id="extraDuty">0</div>
+        <div class="l">Extra duty earned from OT</div>
+      </div>
+      <div class="stat">
+        <div class="n" id="totalOt">0</div>
+        <div class="l">OT not yet converted (hrs)</div>
+      </div>
+      <div class="stat" style="grid-column:1/-1">
+        <div class="l" style="margin-bottom:6px">Shift-wise count</div>
+        <div class="shift-split">
+          <div class="chip" style="background:var(--shift-a)">A Shift<span class="n" id="cntA">0</span></div>
+          <div class="chip" style="background:var(--shift-b)">B Shift<span class="n" id="cntB">0</span></div>
+          <div class="chip" style="background:var(--shift-c)">C Shift<span class="n" id="cntC">0</span></div>
+          <div class="chip" style="background:var(--shift-day)">Day<span class="n" id="cntDay">0</span></div>
+          <div class="chip" style="background:var(--shift-night)">Night<span class="n" id="cntNight">0</span></div>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="n" id="totalLunch">0</div>
+        <div class="l">Lunches eaten</div>
+      </div>
+      <div class="stat">
+        <div class="n" id="totalDinner">0</div>
+        <div class="l">Dinners eaten</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Entry List</h2>
+    <div class="entries" id="entryList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Pay Calculator</h2>
+    <div class="field">
+      <label for="salaryInput">Monthly salary (₹)</label>
+      <input type="number" id="salaryInput" min="0" step="1" placeholder="e.g. 14500" inputmode="decimal">
+      <p class="hint">Pay is for the days you actually worked, not every calendar day in the range. Each worked day is paid at that day's own month's rate (salary ÷ 28, 30 or 31), and every 8 hrs of built-up OT earns one more paid duty.</p>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <div class="field">
+        <label for="calcFrom">From</label>
+        <input type="date" id="calcFrom">
+      </div>
+      <div class="field">
+        <label for="calcTo">To</label>
+        <input type="date" id="calcTo">
+      </div>
+    </div>
+    <div class="stats" style="margin-top:14px">
+      <div class="stat">
+        <div class="n" id="calcDays">0</div>
+        <div class="l">Duty days (incl. OT bonus)</div>
+      </div>
+      <div class="stat">
+        <div class="n" id="calcExtraDuty">0</div>
+        <div class="l">Extra duty from OT</div>
+      </div>
+      <div class="stat">
+        <div class="n" id="calcOt">0</div>
+        <div class="l">OT not yet converted (hrs)</div>
+      </div>
+      <div class="stat">
+        <div class="n" id="calcLunch">0</div>
+        <div class="l">Lunches eaten</div>
+      </div>
+      <div class="stat">
+        <div class="n" id="calcDinner">0</div>
+        <div class="l">Dinners eaten</div>
+      </div>
+      <div class="stat" style="grid-column:1/-1">
+        <div class="n" id="calcPay">₹0</div>
+        <div class="l">Estimated pay for this period</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Download Report</h2>
+    <div class="row2">
+      <div class="field">
+        <label for="fromDate">From</label>
+        <input type="date" id="fromDate">
+      </div>
+      <div class="field">
+        <label for="toDate">To</label>
+        <input type="date" id="toDate">
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary" id="downloadBtn" style="margin-top:12px">Download CSV</button>
+    <p class="download-note" id="downloadNote"></p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var STORE_KEY = 'duty_tracker_entries_v3';
+  var shiftLabel = { A:'A Shift', B:'B Shift', C:'C Shift', Day:'Day Shift', Night:'Night Shift' };
+  var dotColor = { A:'var(--shift-a)', B:'var(--shift-b)', C:'var(--shift-c)', Day:'var(--shift-day)', Night:'var(--shift-night)' };
+
+  function loadEntries(){
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e){ return []; }
+  }
+  function saveEntries(list){
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); } catch(e){}
+  }
+
+  var entries = loadEntries();
+
+  var dateEl = document.getElementById('date');
+  var shiftEl = document.getElementById('shift');
+  var otEl = document.getElementById('ot');
+  var lunchBtn = document.getElementById('lunchBtn');
+  var dinnerBtn = document.getElementById('dinnerBtn');
+  var monthEl = document.getElementById('month');
+  var form = document.getElementById('entryForm');
+  var lockMsg = document.getElementById('lockMsg');
+  var editBtn = document.getElementById('editBtn');
+  var saveBtn = document.getElementById('saveBtn');
+  var fromDateEl = document.getElementById('fromDate');
+  var toDateEl = document.getElementById('toDate');
+  var downloadBtn = document.getElementById('downloadBtn');
+  var downloadNote = document.getElementById('downloadNote');
+  var salaryEl = document.getElementById('salaryInput');
+  var calcFromEl = document.getElementById('calcFrom');
+  var calcToEl = document.getElementById('calcTo');
+
+  var SALARY_KEY = 'duty_tracker_salary_v1';
+  var NAME_KEY = 'duty_tracker_name_v1';
+  var MOBILE_KEY = 'duty_tracker_mobile_v1';
+  var nameEl = document.getElementById('nameInput');
+  var mobileEl = document.getElementById('mobileInput');
+  var editingId = null;
+
+  try { nameEl.value = localStorage.getItem(NAME_KEY) || ''; } catch(e){}
+  try { mobileEl.value = localStorage.getItem(MOBILE_KEY) || ''; } catch(e){}
+  nameEl.addEventListener('input', function(){
+    try { localStorage.setItem(NAME_KEY, nameEl.value); } catch(e){}
+  });
+  mobileEl.addEventListener('input', function(){
+    try { localStorage.setItem(MOBILE_KEY, mobileEl.value); } catch(e){}
+  });
+
+  function todayISO(){
+    var d = new Date();
+    var tz = d.getTimezoneOffset() * 60000;
+    return new Date(d - tz).toISOString().slice(0,10);
+  }
+
+  function findByDate(date){
+    for (var i = 0; i < entries.length; i++){
+      if (entries[i].date === date) return entries[i];
+    }
+    return null;
+  }
+
+  function setMealToggle(btn, eaten){
+    btn.dataset.eaten = eaten ? 'true' : 'false';
+    btn.querySelector('.mark').textContent = eaten ? '✓' : '✗';
+  }
+
+  function getMealToggle(btn){
+    return btn.dataset.eaten === 'true';
+  }
+
+  lunchBtn.addEventListener('click', function(){
+    if (lunchBtn.disabled) return;
+    setMealToggle(lunchBtn, !getMealToggle(lunchBtn));
+  });
+  dinnerBtn.addEventListener('click', function(){
+    if (dinnerBtn.disabled) return;
+    setMealToggle(dinnerBtn, !getMealToggle(dinnerBtn));
+  });
+
+  function setFieldsDisabled(disabled){
+    shiftEl.disabled = disabled;
+    otEl.disabled = disabled;
+    lunchBtn.disabled = disabled;
+    dinnerBtn.disabled = disabled;
+  }
+
+  function checkDate(){
+    var existing = findByDate(dateEl.value);
+    if (existing && editingId !== existing.id){
+      shiftEl.value = existing.shift;
+      otEl.value = existing.ot;
+      setMealToggle(lunchBtn, !!existing.lunch);
+      setMealToggle(dinnerBtn, !!existing.dinner);
+      setFieldsDisabled(true);
+      lockMsg.hidden = false;
+      saveBtn.hidden = true;
+    } else {
+      setFieldsDisabled(false);
+      lockMsg.hidden = true;
+      saveBtn.hidden = false;
+    }
+  }
+
+  function pad2(n){ return (n < 10 ? '0' : '') + n; }
+  function iso(y, m, d){ return y + '-' + pad2(m + 1) + '-' + pad2(d); }
+  function daysInMonth(y, m){ return new Date(y, m + 1, 0).getDate(); }
+
+  function defaultCycle(){
+    var d = new Date();
+    var day = d.getDate(), y = d.getFullYear(), m = d.getMonth();
+    var fromY, fromM, toY, toM;
+    if (day >= 25){
+      fromY = y; fromM = m;
+      toM = (m + 1) % 12; toY = (m === 11) ? y + 1 : y;
+    } else {
+      toY = y; toM = m;
+      fromM = (m === 0) ? 11 : m - 1; fromY = (m === 0) ? y - 1 : y;
+    }
+    return { from: iso(fromY, fromM, 25), to: iso(toY, toM, 25) };
+  }
+
+  // Core duty/pay rule: every entry is worth 1 duty. A/B/C shifts are 8 hrs
+  // (no built-in OT); Day/Night shifts are 12 hrs, so they carry 4 hrs of OT
+  // by default. OT hours accumulate across the days in the period, and every
+  // full 8 hrs accumulated converts into one more paid duty (e.g. two 12-hour
+  // Day/Night shifts = 2 duties + 8 OT hrs = 1 extra duty = 3 duties total).
+  // Each duty is paid at its own calendar day's month rate (salary divided by
+  // that month's actual day count), so pay only ever reflects days actually worked.
+  function analyzePeriod(list, salary){
+    var sorted = list.slice().sort(function(a,b){ return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+    var dutyDays = 0, extraDuty = 0, cumulativeOt = 0, rawOt = 0, lunches = 0, dinners = 0, pay = 0;
+    sorted.forEach(function(e){
+      var d = new Date(e.date + 'T00:00:00');
+      var rate = salary > 0 ? (salary / daysInMonth(d.getFullYear(), d.getMonth())) : 0;
+      dutyDays += 1;
+      pay += rate;
+      rawOt += e.ot;
+      cumulativeOt += e.ot;
+      while (cumulativeOt >= 8){
+        cumulativeOt -= 8;
+        dutyDays += 1;
+        extraDuty += 1;
+        pay += rate;
+      }
+      if (e.lunch) lunches++;
+      if (e.dinner) dinners++;
+    });
+    return {
+      dutyDays: dutyDays,
+      extraDuty: extraDuty,
+      leftoverOt: Math.round(cumulativeOt * 10) / 10,
+      rawOt: Math.round(rawOt * 10) / 10,
+      lunches: lunches,
+      dinners: dinners,
+      pay: pay
+    };
+  }
+
+  function recalcCalc(){
+    var from = calcFromEl.value, to = calcToEl.value;
+    if (!from || !to || from > to){
+      document.getElementById('calcDays').textContent = '0';
+      document.getElementById('calcExtraDuty').textContent = '0';
+      document.getElementById('calcOt').textContent = '0';
+      document.getElementById('calcLunch').textContent = '0';
+      document.getElementById('calcDinner').textContent = '0';
+      document.getElementById('calcPay').textContent = '₹0';
+      return;
+    }
+    var list = entries.filter(function(e){ return e.date >= from && e.date <= to; });
+    var salary = parseFloat(salaryEl.value) || 0;
+    var r = analyzePeriod(list, salary);
+    document.getElementById('calcDays').textContent = r.dutyDays;
+    document.getElementById('calcExtraDuty').textContent = r.extraDuty;
+    document.getElementById('calcOt').textContent = r.leftoverOt;
+    document.getElementById('calcLunch').textContent = r.lunches;
+    document.getElementById('calcDinner').textContent = r.dinners;
+    document.getElementById('calcPay').textContent = '₹' + Math.round(r.pay).toLocaleString('en-IN');
+  }
+
+  try { salaryEl.value = localStorage.getItem(SALARY_KEY) || ''; } catch(e){}
+  var cyc = defaultCycle();
+  calcFromEl.value = cyc.from;
+  calcToEl.value = cyc.to;
+
+  calcFromEl.addEventListener('input', recalcCalc);
+  calcToEl.addEventListener('input', recalcCalc);
+  salaryEl.addEventListener('input', function(){
+    try { localStorage.setItem(SALARY_KEY, salaryEl.value); } catch(e){}
+    recalcCalc();
+  });
+
+  var today = todayISO();
+  dateEl.value = today;
+  monthEl.value = today.slice(0,7);
+  fromDateEl.value = today.slice(0,8) + '01';
+  toDateEl.value = today;
+  checkDate();
+  recalcCalc();
+
+  function autoOtFor(shift){
+    return (shift === 'Day' || shift === 'Night') ? 4 : 0;
+  }
+
+  dateEl.addEventListener('change', function(){
+    editingId = null;
+    saveBtn.textContent = 'Save Entry';
+    if (!lunchBtn.disabled && !findByDate(dateEl.value)){
+      otEl.value = autoOtFor(shiftEl.value);
+      setMealToggle(lunchBtn, false);
+      setMealToggle(dinnerBtn, false);
+    }
+    checkDate();
+  });
+
+  shiftEl.addEventListener('change', function(){
+    if (shiftEl.disabled) return;
+    if (!findByDate(dateEl.value)){
+      otEl.value = autoOtFor(shiftEl.value);
+    }
+  });
+
+  editBtn.addEventListener('click', function(){
+    var existing = findByDate(dateEl.value);
+    if (!existing) return;
+    editingId = existing.id;
+    setFieldsDisabled(false);
+    lockMsg.hidden = true;
+    saveBtn.hidden = false;
+    saveBtn.textContent = 'Update Entry';
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!dateEl.value) return;
+    var existing = findByDate(dateEl.value);
+
+    if (existing && editingId === existing.id){
+      existing.shift = shiftEl.value;
+      existing.ot = parseFloat(otEl.value) || 0;
+      existing.lunch = getMealToggle(lunchBtn);
+      existing.dinner = getMealToggle(dinnerBtn);
+    } else if (existing){
+      checkDate();
+      return;
+    } else {
+      entries.push({
+        id: Date.now() + '_' + Math.random().toString(36).slice(2,7),
+        date: dateEl.value,
+        shift: shiftEl.value,
+        ot: parseFloat(otEl.value) || 0,
+        lunch: getMealToggle(lunchBtn),
+        dinner: getMealToggle(dinnerBtn)
+      });
+    }
+
+    saveEntries(entries);
+    editingId = null;
+    saveBtn.textContent = 'Save Entry';
+    checkDate();
+    render();
+    recalcCalc();
+  });
+
+  monthEl.addEventListener('change', render);
+
+  function removeEntry(id){
+    entries = entries.filter(function(e){ return e.id !== id; });
+    saveEntries(entries);
+    if (findByDate(dateEl.value) === null) editingId = null;
+    checkDate();
+    render();
+    recalcCalc();
+  }
+  window.removeEntry = removeEntry;
+
+  function render(){
+    var month = monthEl.value;
+    var list = entries.filter(function(e){ return e.date.indexOf(month) === 0; })
+                       .sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+
+    var counts = { A:0, B:0, C:0, Day:0, Night:0 };
+    list.forEach(function(e){
+      if (counts[e.shift] !== undefined) counts[e.shift]++;
+    });
+    var r = analyzePeriod(list, 0);
+
+    document.getElementById('totalDays').textContent = r.dutyDays;
+    document.getElementById('extraDuty').textContent = r.extraDuty;
+    document.getElementById('totalOt').textContent = r.leftoverOt;
+    document.getElementById('cntA').textContent = counts.A;
+    document.getElementById('cntB').textContent = counts.B;
+    document.getElementById('cntC').textContent = counts.C;
+    document.getElementById('cntDay').textContent = counts.Day;
+    document.getElementById('cntNight').textContent = counts.Night;
+    document.getElementById('totalLunch').textContent = r.lunches;
+    document.getElementById('totalDinner').textContent = r.dinners;
+
+    var listEl = document.getElementById('entryList');
+    if (list.length === 0){
+      listEl.innerHTML = '<p class="empty">No entries yet for this month</p>';
+      return;
+    }
+    listEl.innerHTML = list.map(function(e){
+      var d = new Date(e.date + 'T00:00:00');
+      var dateStr = d.toLocaleDateString('en-IN', { day:'2-digit', month:'short' });
+      var dot = '<span class="dot" style="background:' + (dotColor[e.shift] || '#999') + '"></span>';
+      var lunchMark = '<span class="mealicon ' + (e.lunch ? 'yes">✓' : 'no">✗') + ' Lunch</span>';
+      var dinnerMark = '<span class="mealicon ' + (e.dinner ? 'yes">✓' : 'no">✗') + ' Dinner</span>';
+      return '<div class="entry">' +
+        '<div class="meta">' +
+          '<span class="d">' + dateStr + '</span>' +
+          '<span class="tags">' + dot + (shiftLabel[e.shift] || e.shift) +
+            (e.ot > 0 ? ' · OT ' + e.ot + 'h' : '') +
+          '</span>' +
+          '<span class="tags">' + lunchMark + dinnerMark + '</span>' +
+        '</div>' +
+        '<button class="btn-ghost" onclick="removeEntry(\'' + e.id + '\')">Delete</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  render();
+
+  function csvEscape(v){
+    v = String(v);
+    if (v.indexOf(',') !== -1 || v.indexOf('"') !== -1 || v.indexOf('\n') !== -1){
+      return '"' + v.replace(/"/g, '""') + '"';
+    }
+    return v;
+  }
+
+  downloadBtn.addEventListener('click', function(){
+    downloadNote.textContent = '';
+    var from = fromDateEl.value;
+    var to = toDateEl.value;
+    if (!from || !to){
+      downloadNote.textContent = 'Pick both a from and a to date.';
+      return;
+    }
+    if (from > to){
+      downloadNote.textContent = 'The from date must be before the to date.';
+      return;
+    }
+
+    var list = entries.filter(function(e){ return e.date >= from && e.date <= to; })
+                       .sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+
+    if (list.length === 0){
+      downloadNote.textContent = 'No entries found in that date range.';
+      return;
+    }
+
+    function formatDateLong(dateStr){
+      var d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    }
+    function dayName(dateStr){
+      var d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-IN', { weekday:'long' });
+    }
+
+    var COLS = 8;
+    function row(){
+      var cells = Array.prototype.slice.call(arguments);
+      while (cells.length < COLS) cells.push('');
+      return cells.map(csvEscape).join(',');
+    }
+
+    var salary = parseFloat(salaryEl.value) || 0;
+    var sortedAsc = list.slice().sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+    var r = analyzePeriod(list, salary);
+
+    // Recompute each row's own duty count the same way analyzePeriod does,
+    // so the per-row figure and the summary total always agree.
+    var cumulativeOt = 0;
+    var dutyCountByIdx = sortedAsc.map(function(e){
+      var d = 1;
+      cumulativeOt += e.ot;
+      while (cumulativeOt >= 8){ cumulativeOt -= 8; d += 1; }
+      return d;
+    });
+
+    var rows = [];
+    rows.push(row('DUTY TRACKER REPORT'));
+    rows.push(row());
+    rows.push(row('Name', nameEl.value || '-'));
+    rows.push(row('Mobile Number', mobileEl.value || '-'));
+    rows.push(row('Period', formatDateLong(from) + ' to ' + formatDateLong(to)));
+    rows.push(row('Generated On', formatDateLong(todayISO())));
+    rows.push(row());
+
+    rows.push(row('Sl. No.','Date','Day','Shift','Overtime (hrs)','Lunch','Dinner','Duty Count'));
+    sortedAsc.forEach(function(e, idx){
+      rows.push(row(
+        idx + 1,
+        formatDateLong(e.date),
+        dayName(e.date),
+        shiftLabel[e.shift] || e.shift,
+        e.ot,
+        e.lunch ? 'Yes' : 'No',
+        e.dinner ? 'Yes' : 'No',
+        dutyCountByIdx[idx]
+      ));
+    });
+    rows.push(row());
+    rows.push(row('SUMMARY'));
+    rows.push(row('Total Duty Days (incl. OT bonus)', r.dutyDays));
+    rows.push(row('Extra Duty Earned From OT', r.extraDuty));
+    rows.push(row('Total OT Logged (hrs)', r.rawOt));
+    rows.push(row('OT Not Yet Converted (hrs)', r.leftoverOt));
+    rows.push(row('Total Lunches Eaten', r.lunches));
+    rows.push(row('Total Dinners Eaten', r.dinners));
+    if (r.pay > 0){
+      rows.push(row('Estimated Pay (Rs.)', Math.round(r.pay)));
+    }
+
+    var csv = rows.join('\r\n');
+    var filename = 'Duty-Report-' + from + '-to-' + to + '.csv';
+
+    try{
+      var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement('a');
+      a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+      setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+      downloadNote.textContent='Saved '+filename;
+    }catch(err){downloadNote.textContent='The download was not completed.';}
+  });
+})();
+</script>
+
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+</body></html>
