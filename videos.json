@@ -1,0 +1,15 @@
+{
+  "passwordHash": "9764e0d5bc8ec1844c9234c4a22e276cb72ab5b87a9bef7189264e959f496c2b",
+  "previewUrl": "",
+  "videos": [
+    {
+      "enabled": true,
+      "link": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "title": "Sample Training Video",
+      "description": "Replace this entry with your own video link. YouTube, Vimeo, Google Drive (file share link) and direct .mp4 links all work — just tap the video and it plays in the app.",
+      "category": "Training",
+      "date": "2026-11-25",
+      "thumbnail": ""
+    }
+  ]
+}

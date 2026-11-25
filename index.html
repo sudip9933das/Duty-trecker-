@@ -286,8 +286,8 @@ input:focus,select:focus,button:focus-visible{
   --display:"Roboto Condensed","Arial Narrow",sans-serif-condensed,"Segoe UI",system-ui,sans-serif;
   --bg:#edf0f3; --surface:#ffffff; --border:#d8dee4; --fg:#121c25; --fg-muted:#5b6b78;
   --danger:#c0392b; --ok:#1f8a5b;
-  --shift-a:#f2a900; --shift-b:#0b8f9c; --shift-c:#4a3fd0; --shift-day:#ffd23f; --shift-night:#1e2a5a;
-  --on-a:#1b1300; --on-b:#ffffff; --on-c:#ffffff; --on-day:#2a2100; --on-night:#ffffff;
+  --shift-a:#f2a900; --shift-b:#0b8f9c; --shift-c:#4a3fd0; --shift-day:#ffd23f; --shift-night:#1e2a5a; --shift-leave:#7c8794;
+  --on-a:#1b1300; --on-b:#ffffff; --on-c:#ffffff; --on-day:#2a2100; --on-night:#ffffff; --on-leave:#ffffff;
   --accent:var(--shift-b); --accent-fg:var(--on-b);
   color-scheme:light;
 }
@@ -295,16 +295,16 @@ input:focus,select:focus,button:focus-visible{
   :root:not([data-theme="light"]){
     --bg:#0e151b; --surface:#16212a; --border:#25323d; --fg:#e8eef2; --fg-muted:#8fa1ae;
     --danger:#ff7b6b; --ok:#4fd08f;
-    --shift-a:#ffb81c; --shift-b:#2bb8c6; --shift-c:#8479ff; --shift-day:#ffd66b; --shift-night:#7f92e8;
-    --on-a:#1b1300; --on-b:#04282c; --on-c:#0f0a3d; --on-day:#2a2100; --on-night:#0a1033;
+    --shift-a:#ffb81c; --shift-b:#2bb8c6; --shift-c:#8479ff; --shift-day:#ffd66b; --shift-night:#7f92e8; --shift-leave:#8d99a6;
+    --on-a:#1b1300; --on-b:#04282c; --on-c:#0f0a3d; --on-day:#2a2100; --on-night:#0a1033; --on-leave:#10151a;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --bg:#0e151b; --surface:#16212a; --border:#25323d; --fg:#e8eef2; --fg-muted:#8fa1ae;
   --danger:#ff7b6b; --ok:#4fd08f;
-  --shift-a:#ffb81c; --shift-b:#2bb8c6; --shift-c:#8479ff; --shift-day:#ffd66b; --shift-night:#7f92e8;
-  --on-a:#1b1300; --on-b:#04282c; --on-c:#0f0a3d; --on-day:#2a2100; --on-night:#0a1033;
+  --shift-a:#ffb81c; --shift-b:#2bb8c6; --shift-c:#8479ff; --shift-day:#ffd66b; --shift-night:#7f92e8; --shift-leave:#8d99a6;
+  --on-a:#1b1300; --on-b:#04282c; --on-c:#0f0a3d; --on-day:#2a2100; --on-night:#0a1033; --on-leave:#10151a;
   color-scheme:dark;
 }
 body{background:var(--bg)}
@@ -314,7 +314,7 @@ body{background:var(--bg)}
 .stat .n{font-family:var(--display);font-weight:700;font-size:1.9rem}
 .chip{color:#fff;font-family:var(--display)}
 .chip:nth-child(1){color:var(--on-a)}.chip:nth-child(2){color:var(--on-b)}.chip:nth-child(3){color:var(--on-c)}
-.chip:nth-child(4){color:var(--on-day)}.chip:nth-child(5){color:var(--on-night)}
+.chip:nth-child(4){color:var(--on-day)}.chip:nth-child(5){color:var(--on-night)}.chip:nth-child(6){color:var(--on-leave)}
 .btn{transition:transform .12s ease,filter .12s ease}
 .btn:active{transform:scale(.98);filter:brightness(.95)}
 .meal-toggle{transition:border-color .15s,color .15s,background .15s}
@@ -418,6 +418,7 @@ body{background:var(--bg)}
             <option value="C">C Shift (9 PM – 5 AM)</option>
             <option value="Day">Day Shift (5 AM – 5 PM)</option>
             <option value="Night">Night Shift (5 PM – 5 AM)</option>
+            <option value="Leave">Leave / ছুটি</option>
           </select>
         </div>
       </div>
@@ -475,6 +476,7 @@ body{background:var(--bg)}
           <div class="chip" style="background:var(--shift-c)">C Shift<span class="n" id="cntC">0</span></div>
           <div class="chip" style="background:var(--shift-day)">Day<span class="n" id="cntDay">0</span></div>
           <div class="chip" style="background:var(--shift-night)">Night<span class="n" id="cntNight">0</span></div>
+          <div class="chip" style="background:var(--shift-leave)">Leave<span class="n" id="cntLeave">0</span></div>
         </div>
       </div>
       <div class="stat">
@@ -531,6 +533,10 @@ body{background:var(--bg)}
         <div class="n" id="calcDinner">0</div>
         <div class="l">Dinners eaten</div>
       </div>
+      <div class="stat">
+        <div class="n" id="calcLeave">0</div>
+        <div class="l">Leave days taken</div>
+      </div>
     </div>
   </div>
 
@@ -572,8 +578,8 @@ body{background:var(--bg)}
 <script>
 (function(){
   var STORE_KEY = 'duty_tracker_entries_v3';
-  var shiftLabel = { A:'A Shift', B:'B Shift', C:'C Shift', Day:'Day Shift', Night:'Night Shift' };
-  var dotColor = { A:'var(--shift-a)', B:'var(--shift-b)', C:'var(--shift-c)', Day:'var(--shift-day)', Night:'var(--shift-night)' };
+  var shiftLabel = { A:'A Shift', B:'B Shift', C:'C Shift', Day:'Day Shift', Night:'Night Shift', Leave:'Leave' };
+  var dotColor = { A:'var(--shift-a)', B:'var(--shift-b)', C:'var(--shift-c)', Day:'var(--shift-day)', Night:'var(--shift-night)', Leave:'var(--shift-leave)' };
 
   function loadEntries(){
     try {
@@ -705,12 +711,17 @@ body{background:var(--bg)}
   // = 0.5 extra duty, so each counts as 1.5 duty (4 such shifts = 6 duties).
   function r2(x){ return Math.round(x * 100) / 100; }
   function analyzePeriod(list){
-    var dutyDays = 0, extraDuty = 0, rawOt = 0, lunches = 0, dinners = 0;
+    var dutyDays = 0, extraDuty = 0, rawOt = 0, lunches = 0, dinners = 0, leaves = 0, shiftsWorked = 0;
     list.forEach(function(e){
-      var extra = e.ot / 8;
-      dutyDays += 1 + extra;
-      extraDuty += extra;
-      rawOt += e.ot;
+      if (e.shift === 'Leave'){
+        leaves++;
+      } else {
+        var extra = e.ot / 8;
+        dutyDays += 1 + extra;
+        extraDuty += extra;
+        rawOt += e.ot;
+        shiftsWorked++;
+      }
       if (e.lunch) lunches++;
       if (e.dinner) dinners++;
     });
@@ -720,7 +731,8 @@ body{background:var(--bg)}
       rawOt: r2(rawOt),
       lunches: lunches,
       dinners: dinners,
-      shifts: list.length
+      shifts: shiftsWorked,
+      leaves: leaves
     };
   }
 
@@ -733,6 +745,7 @@ body{background:var(--bg)}
       document.getElementById('calcLunch').textContent = '0';
       document.getElementById('calcDinner').textContent = '0';
       document.getElementById('calcShifts').textContent = '0';
+      document.getElementById('calcLeave').textContent = '0';
       return;
     }
     var list = entries.filter(function(e){ return e.date >= from && e.date <= to; });
@@ -743,6 +756,7 @@ body{background:var(--bg)}
     document.getElementById('calcLunch').textContent = r.lunches;
     document.getElementById('calcDinner').textContent = r.dinners;
     document.getElementById('calcShifts').textContent = r.shifts;
+    document.getElementById('calcLeave').textContent = r.leaves;
   }
 
   var cyc = defaultCycle();
@@ -780,7 +794,14 @@ body{background:var(--bg)}
     if (shiftEl.disabled) return;
     if (!findByDate(dateEl.value)){
       otEl.value = autoOtFor(shiftEl.value);
+      if (shiftEl.value === 'Leave'){
+        setMealToggle(lunchBtn, false);
+        setMealToggle(dinnerBtn, false);
+      }
     }
+    otEl.disabled = shiftEl.value === 'Leave';
+    lunchBtn.disabled = shiftEl.value === 'Leave';
+    dinnerBtn.disabled = shiftEl.value === 'Leave';
   });
 
   editBtn.addEventListener('click', function(){
@@ -788,6 +809,9 @@ body{background:var(--bg)}
     if (!existing) return;
     editingId = existing.id;
     setFieldsDisabled(false);
+    otEl.disabled = existing.shift === 'Leave';
+    lunchBtn.disabled = existing.shift === 'Leave';
+    dinnerBtn.disabled = existing.shift === 'Leave';
     lockMsg.hidden = true;
     saveBtn.hidden = false;
     saveBtn.textContent = 'Update Entry';
@@ -843,6 +867,9 @@ body{background:var(--bg)}
     setMealToggle(lunchBtn, !!e.lunch);
     setMealToggle(dinnerBtn, !!e.dinner);
     setFieldsDisabled(false);
+    otEl.disabled = e.shift === 'Leave';
+    lunchBtn.disabled = e.shift === 'Leave';
+    dinnerBtn.disabled = e.shift === 'Leave';
     lockMsg.hidden = true;
     saveBtn.hidden = false;
     saveBtn.textContent = 'Update Entry';
@@ -855,7 +882,7 @@ body{background:var(--bg)}
     var list = entries.filter(function(e){ return e.date.indexOf(month) === 0; })
                        .sort(function(a,b){ return a.date < b.date ? 1 : -1; });
 
-    var counts = { A:0, B:0, C:0, Day:0, Night:0 };
+    var counts = { A:0, B:0, C:0, Day:0, Night:0, Leave:0 };
     list.forEach(function(e){
       if (counts[e.shift] !== undefined) counts[e.shift]++;
     });
@@ -869,6 +896,7 @@ body{background:var(--bg)}
     document.getElementById('cntC').textContent = counts.C;
     document.getElementById('cntDay').textContent = counts.Day;
     document.getElementById('cntNight').textContent = counts.Night;
+    document.getElementById('cntLeave').textContent = counts.Leave;
     document.getElementById('totalLunch').textContent = r.lunches;
     document.getElementById('totalDinner').textContent = r.dinners;
 
@@ -1042,7 +1070,7 @@ body{background:var(--bg)}
     var sortedAsc = list.slice().sort(function(a,b){ return a.date < b.date ? -1 : 1; });
     var r = analyzePeriod(list);
 
-    var dutyCountByIdx = sortedAsc.map(function(e){ return r2(1 + e.ot / 8); });
+    var dutyCountByIdx = sortedAsc.map(function(e){ return e.shift === 'Leave' ? 0 : r2(1 + e.ot / 8); });
 
     var rows = [];
     rows.push(row('DUTY TRACKER REPORT'));
@@ -1069,6 +1097,7 @@ body{background:var(--bg)}
     rows.push(row());
     rows.push(row('SUMMARY'));
     rows.push(row('Shifts Worked', r.shifts));
+    rows.push(row('Leave Days Taken', r.leaves));
     rows.push(row('Total Duty Days (incl. OT bonus)', r.dutyDays));
     rows.push(row('Extra Duty Earned From OT', r.extraDuty));
     rows.push(row('Total OT Logged (hrs)', r.rawOt));
