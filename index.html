@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#8a5a3b">
+<meta name="theme-color" content="#0f1a24">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -256,14 +256,130 @@ input:focus,select:focus,button:focus-visible{
 .ad[hidden]{display:none}
 .ad img{display:block;width:100%;height:auto;max-height:160px;object-fit:cover}
 .ad .tag{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);color:#fff;font-size:.65rem;padding:2px 6px;border-radius:5px;letter-spacing:.04em}
+
+
+.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px}
+.tab{flex:1;font:inherit;font-weight:600;font-size:.92rem;padding:10px;border:none;border-radius:9px;background:transparent;color:var(--fg-muted);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-fg)}
+.view{display:flex;flex-direction:column;gap:18px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.vchip{font:inherit;font-size:.8rem;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--fg-muted);cursor:pointer}
+.vchip[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.vcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.vthumb{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,var(--accent),var(--shift-c));display:block;width:100%;border:none;padding:0;cursor:pointer}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.vplay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.vplay span{width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;padding-left:4px}
+.vplayer{aspect-ratio:16/9;width:100%;background:#000}
+.vplayer iframe,.vplayer video{width:100%;height:100%;border:0;display:block}
+.vbody{padding:12px 14px 14px}
+.vmeta{display:flex;gap:8px;align-items:center;font-size:.74rem;color:var(--fg-muted);margin-bottom:6px}
+.vtag{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-weight:600}
+.vtitle{font-size:1rem;font-weight:700;margin:0 0 4px;line-height:1.3}
+.vdesc{font-size:.86rem;color:var(--fg-muted);margin:0;white-space:pre-line}
+.vopen{display:inline-block;margin-top:8px;font-size:.84rem;font-weight:600;color:var(--accent)}
+
+/* text links use the ink colour (amber/teal accents are for fills, not small text) */
+.lock-msg button,.btn-edit,.vopen,.download-note a{color:var(--fg)!important;text-decoration:underline;text-underline-offset:3px}
+/* ===== Shift-dial redesign: one bold moment (the dial), everything else quiet ===== */
+:root{
+  --display:"Roboto Condensed","Arial Narrow",sans-serif-condensed,"Segoe UI",system-ui,sans-serif;
+  --bg:#edf0f3; --surface:#ffffff; --border:#d8dee4; --fg:#121c25; --fg-muted:#5b6b78;
+  --danger:#c0392b; --ok:#1f8a5b;
+  --shift-a:#f2a900; --shift-b:#0b8f9c; --shift-c:#4a3fd0; --shift-day:#ffd23f; --shift-night:#1e2a5a;
+  --on-a:#1b1300; --on-b:#ffffff; --on-c:#ffffff; --on-day:#2a2100; --on-night:#ffffff;
+  --accent:var(--shift-b); --accent-fg:var(--on-b);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e151b; --surface:#16212a; --border:#25323d; --fg:#e8eef2; --fg-muted:#8fa1ae;
+    --danger:#ff7b6b; --ok:#4fd08f;
+    --shift-a:#ffb81c; --shift-b:#2bb8c6; --shift-c:#8479ff; --shift-day:#ffd66b; --shift-night:#7f92e8;
+    --on-a:#1b1300; --on-b:#04282c; --on-c:#0f0a3d; --on-day:#2a2100; --on-night:#0a1033;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e151b; --surface:#16212a; --border:#25323d; --fg:#e8eef2; --fg-muted:#8fa1ae;
+  --danger:#ff7b6b; --ok:#4fd08f;
+  --shift-a:#ffb81c; --shift-b:#2bb8c6; --shift-c:#8479ff; --shift-day:#ffd66b; --shift-night:#7f92e8;
+  --on-a:#1b1300; --on-b:#04282c; --on-c:#0f0a3d; --on-day:#2a2100; --on-night:#0a1033;
+  color-scheme:dark;
+}
+body{background:var(--bg)}
+.card{border-radius:16px}
+.card h2{font:700 1.2rem/1.2 var(--display);text-transform:none;letter-spacing:0;color:var(--fg);margin:0 0 12px}
+.stat{border-radius:12px}
+.stat .n{font-family:var(--display);font-weight:700;font-size:1.9rem}
+.chip{color:#fff;font-family:var(--display)}
+.chip:nth-child(1){color:var(--on-a)}.chip:nth-child(2){color:var(--on-b)}.chip:nth-child(3){color:var(--on-c)}
+.chip:nth-child(4){color:var(--on-day)}.chip:nth-child(5){color:var(--on-night)}
+.btn{transition:transform .12s ease,filter .12s ease}
+.btn:active{transform:scale(.98);filter:brightness(.95)}
+.meal-toggle{transition:border-color .15s,color .15s,background .15s}
+.meal-toggle[data-eaten="true"]{background:color-mix(in srgb,var(--ok) 12%,var(--bg))}
+.meal-toggle[data-eaten="true"] .mark{animation:pop .28s ease-out}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+.tab{transition:background .2s,color .2s}
+.tab[aria-selected="true"]{background:var(--fg);color:var(--bg)}
+.view:not([hidden]){animation:vin .22s ease-out}
+@keyframes vin{from{opacity:0}to{opacity:1}}
+
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:16px 16px 18px;color:#fff;background:linear-gradient(165deg,#0d1822 0%,#14303f 100%);display:flex;flex-direction:column;align-items:center;gap:6px}
+.hero-top{width:100%;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.hero h1{margin:0;font:700 1.35rem/1.1 var(--display);letter-spacing:0}
+.hero-date{font-size:.82rem;color:#9fb3c1}
+.dial{position:relative;width:clamp(180px,56vw,230px);aspect-ratio:1}
+.dial svg{width:100%;height:100%;display:block;overflow:visible}
+.dial .seg{fill:none;stroke-width:13;transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1),opacity .4s}
+.dial .seg.dim{opacity:.28}
+.dial .hand{transition:transform 1.5s cubic-bezier(.2,.8,.2,1)}
+.dial text{font:600 8.5px var(--display);fill:#7f95a5}
+.dial-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;opacity:0;transition:opacity .6s .5s}
+.dial.ready .dial-c{opacity:1}
+.dial-letter{font:700 3.4rem/1 var(--display)}
+.dial-time{font-size:.95rem;font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums}
+.dial-range{font-size:.72rem;color:#9fb3c1}
+.hero-stats{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
+.hero-stats div{text-align:center}
+.hero-stats b{display:block;font:700 1.9rem/1 var(--display);font-variant-numeric:tabular-nums}
+.hero-stats span{font-size:.74rem;color:#9fb3c1}
+
+.toast{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translate(-50%,24px);opacity:0;pointer-events:none;background:var(--fg);color:var(--bg);font-weight:600;font-size:.9rem;padding:11px 18px;border-radius:999px;transition:transform .25s ease,opacity .25s ease;z-index:50;display:flex;gap:8px;align-items:center}
+.toast.on{transform:translate(-50%,0);opacity:1}
+.toast i{font-style:normal;width:18px;height:18px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:inline-flex;align-items:center;justify-content:center;font-size:.7rem}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+  .dial-c{opacity:1}
+}
 </style>
 
 <div class="wrap">
-  <div>
-    <h1>My Duty Tracker</h1>
-    <p class="sub">Keep a running record of your shifts, overtime and canteen meals</p>
+  <header class="hero">
+    <div class="hero-top"><h1>My Duty Tracker</h1><span class="hero-date" id="heroDate"></span></div>
+    <div class="dial" id="dial" role="img" aria-label="24-hour shift dial">
+      <svg viewBox="-134 -134 268 268" aria-hidden="true">
+        <g id="dialArcs"></g>
+        <g id="dialTicks"></g>
+        <g class="hand" id="dialHand"><line x1="0" y1="-52" x2="0" y2="-108" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="0" cy="-110" r="4.5" fill="#fff"/></g>
+      </svg>
+      <div class="dial-c"><div class="dial-letter" id="dialLetter"></div><div class="dial-time" id="dialTime"></div><div class="dial-range" id="dialRange"></div></div>
+    </div>
+    <div class="hero-stats">
+      <div><b id="heroDuty">0</b><span>Duty this month</span></div>
+      <div><b id="heroOt">0</b><span>OT hours</span></div>
+      <div><b id="heroMeals">0</b><span>Meals eaten</span></div>
+    </div>
+  </header>
+  <div class="toast" id="toast" role="status" aria-live="polite"><i>&#10003;</i><span id="toastMsg"></span></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tabDuty" role="tab" aria-selected="true">Duty</button>
+    <button class="tab" id="tabVideos" role="tab" aria-selected="false">Videos</button>
   </div>
 
+  <div class="view" id="dutyView">
   <a class="ad" id="adBanner" hidden target="_blank" rel="noopener noreferrer sponsored">
     <img id="adImg" alt="">
     <span class="tag">Ad</span>
@@ -281,7 +397,8 @@ input:focus,select:focus,button:focus-visible{
         <input type="tel" id="mobileInput" placeholder="Your mobile number" autocomplete="tel" inputmode="tel">
       </div>
     </div>
-    <p class="hint">Saved on this device, and included at the top of your downloaded report.</p>
+    <p class="hint" id="personalHint">Saved on this device, and included at the top of your downloaded report.</p>
+    <p class="hint" id="syncStatus"></p>
   </div>
 
   <div class="card">
@@ -432,6 +549,24 @@ input:focus,select:focus,button:focus-visible{
     <button type="button" class="btn btn-primary" id="downloadBtn" style="margin-top:12px">Download CSV</button>
     <p class="download-note" id="downloadNote"></p>
   </div>
+  </div>
+
+  <div class="view" id="videoView" hidden>
+    <div class="card" id="vLock">
+      <h2>Training &amp; Announcements</h2>
+      <div class="field">
+        <label for="vPass">Password</label>
+        <input type="password" id="vPass" autocomplete="off" placeholder="Enter the secret code">
+      </div>
+      <p class="hint" id="vLockMsg"></p>
+      <button type="button" class="btn btn-primary" id="vUnlock" style="margin-top:8px;width:100%">Unlock</button>
+    </div>
+    <div class="view" id="vList" hidden>
+      <div class="chips" id="vChips"></div>
+      <div class="view" id="vItems"></div>
+      <p class="hint" id="vNote"></p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -451,6 +586,14 @@ input:focus,select:focus,button:focus-visible{
   }
 
   var entries = loadEntries();
+  // Admin sync: paste your Google Apps Script web-app URL between the quotes.
+  // While it is empty the sync card stays hidden and the app works fully offline as before.
+  var SYNC_URL = '';
+  (function(){
+    var changed = false;
+    entries.forEach(function(e){ if (!e.u){ e.u = Date.now(); changed = true; } });
+    if (changed) saveEntries(entries);
+  })();
 
   var dateEl = document.getElementById('date');
   var shiftEl = document.getElementById('shift');
@@ -660,6 +803,7 @@ input:focus,select:focus,button:focus-visible{
       existing.ot = parseFloat(otEl.value) || 0;
       existing.lunch = getMealToggle(lunchBtn);
       existing.dinner = getMealToggle(dinnerBtn);
+      existing.u = Date.now();
     } else if (existing){
       checkDate();
       return;
@@ -670,11 +814,15 @@ input:focus,select:focus,button:focus-visible{
         shift: shiftEl.value,
         ot: parseFloat(otEl.value) || 0,
         lunch: getMealToggle(lunchBtn),
-        dinner: getMealToggle(dinnerBtn)
+        dinner: getMealToggle(dinnerBtn),
+        u: Date.now()
       });
     }
 
+    var toastMsg = (existing && editingId === existing.id) ? 'Entry updated' : 'Entry saved';
     saveEntries(entries);
+    triggerSync();
+    if (window.showToast) window.showToast(toastMsg);
     editingId = null;
     saveBtn.textContent = 'Save Entry';
     checkDate();
@@ -782,6 +930,70 @@ input:focus,select:focus,button:focus-visible{
     window.addEventListener('offline', function(){ box.hidden = true; });
   })();
 
+  // ---------- Admin sync (offline-first queue) ----------
+  // Account = name + mobile number typed in "Personal Information". Entries are
+  // sent to the admin's Google Sheet when online; nothing is lost if it fails.
+  var SYNC_KEY = 'duty_tracker_sync_v2';
+  var syncStatus = document.getElementById('syncStatus');
+  var syncBusy = false;
+  function loadSync(){
+    try { var r = JSON.parse(localStorage.getItem(SYNC_KEY) || 'null'); if (r && r.state) return r; } catch(e){}
+    return { state:{}, last:0 };
+  }
+  var syncSt = loadSync();
+  function saveSync(){ try { localStorage.setItem(SYNC_KEY, JSON.stringify(syncSt)); } catch(e){} }
+  function pendingList(){ return entries.filter(function(e){ return syncSt.state[e.id] !== e.u; }); }
+  function cleanMobile(){ return (mobileEl.value || '').replace(/\D/g, ''); }
+  function refreshStatus(extra){
+    if (!SYNC_URL) return;
+    var n = pendingList().length;
+    var last = syncSt.last ? 'Last sent: ' + new Date(syncSt.last).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : 'Not sent yet';
+    syncStatus.textContent = (extra ? extra + ' · ' : '') + last + ' · ' + (n ? n + ' waiting to send' : 'all sent');
+  }
+  function triggerSync(){ syncNow(false); }
+  function syncNow(manual){
+    if (!SYNC_URL || syncBusy) return;
+    var name = (nameEl.value || '').trim(), mobile = cleanMobile();
+    if (!name || mobile.length < 10 || mobile.length > 15){
+      refreshStatus('Enter your name and a valid mobile number to send data to the admin');
+      return;
+    }
+    var list = pendingList();
+    if (!list.length){ refreshStatus(); return; }
+    if (navigator.onLine === false){ refreshStatus('Offline, will send when internet returns'); return; }
+    syncBusy = true;
+    var batch = list.slice(0, 100);
+    var payload = { name: name, mobile: mobile, entries: batch.map(function(e){
+      return { id:e.id, date:e.date, shift:e.shift, ot:e.ot, lunch:!!e.lunch, dinner:!!e.dinner, u:e.u };
+    }) };
+    function done(msg){ syncBusy = false; refreshStatus(msg); }
+    fetch(SYNC_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (res && res.ok){
+          var ok = {};
+          (res.saved || []).forEach(function(id){ ok[id] = true; });
+          batch.forEach(function(e){ if (ok[e.id]) syncSt.state[e.id] = e.u; });
+          syncSt.last = Date.now();
+          saveSync();
+          var allSaved = (res.saved || []).length === batch.length;
+          done(res.rejected ? res.rejected + ' entries were not accepted' : 'Sent');
+          if (allSaved && list.length > batch.length) syncNow(false);
+        } else {
+          done((res && res.error) || 'Could not send');
+        }
+      })
+      .catch(function(){ done('Could not reach the server, will retry'); });
+  }
+  if (SYNC_URL){
+    document.getElementById('personalHint').textContent += ' When you are online, your name, mobile number and duty entries are also sent to the admin.';
+    nameEl.addEventListener('change', function(){ syncNow(false); });
+    mobileEl.addEventListener('change', function(){ syncNow(false); });
+    window.addEventListener('online', function(){ syncNow(false); });
+    refreshStatus();
+    setTimeout(function(){ syncNow(false); }, 1500);
+  }
+
   function csvEscape(v){
     v = String(v);
     if (v.indexOf(',') !== -1 || v.indexOf('"') !== -1 || v.indexOf('\n') !== -1){
@@ -874,6 +1086,313 @@ input:focus,select:focus,button:focus-visible{
       downloadNote.textContent='Saved '+filename;
     }catch(err){downloadNote.textContent='The download was not completed.';}
   });
+})();
+</script>
+
+<script>
+(function(){
+  var dutyView=document.getElementById('dutyView'), videoView=document.getElementById('videoView');
+  var tabDuty=document.getElementById('tabDuty'), tabVideos=document.getElementById('tabVideos');
+  var lockBox=document.getElementById('vLock'), listBox=document.getElementById('vList');
+  var passEl=document.getElementById('vPass'), lockMsg=document.getElementById('vLockMsg');
+  var chipsEl=document.getElementById('vChips'), itemsEl=document.getElementById('vItems'), noteEl=document.getElementById('vNote');
+  var CACHE_KEY='duty_tracker_videos_v1', UNLOCK_KEY='duty_tracker_videos_unlocked';
+  var cfg=null, filter='All', fails=0, lockedUntil=0;
+  var PV_KEY='duty_tracker_pv_v1', pvBusy={};
+  var pv = (function(){ try { return JSON.parse(localStorage.getItem(PV_KEY) || '{}') || {}; } catch(e){ return {}; } })();
+  function fetchPreviews(list, fromCache){
+    var base = cfg && cfg.previewUrl;
+    if (!/^https:\/\//i.test(base || '') || navigator.onLine === false) return;
+    var todo = list.filter(function(v){ return !pv[v.link] && !pvBusy[v.link] && (!v.title || !v.description); });
+    if (!todo.length) return;
+    var pending = todo.length, got = false;
+    todo.forEach(function(v){
+      pvBusy[v.link] = 1;
+      fetch(base + (base.indexOf('?') < 0 ? '?' : '&') + 'url=' + encodeURIComponent(v.link))
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          if (res && res.ok){
+            pv[v.link] = { title:res.title || '', description:res.description || '', image:res.image || '', date:res.date || '' };
+            got = true;
+          }
+        })
+        .catch(function(){})
+        .then(function(){
+          pending--;
+          if (pending === 0 && got){
+            try { localStorage.setItem(PV_KEY, JSON.stringify(pv)); } catch(e){}
+            if (!listBox.hidden) showList(fromCache);
+          }
+        });
+    });
+  }
+
+  function showTab(name){
+    var v = name==='videos';
+    dutyView.hidden = v; videoView.hidden = !v;
+    tabDuty.setAttribute('aria-selected', String(!v));
+    tabVideos.setAttribute('aria-selected', String(v));
+    if (v) openVideos();
+    window.scrollTo(0,0);
+  }
+  tabDuty.addEventListener('click', function(){ showTab('duty'); });
+  tabVideos.addEventListener('click', function(){ showTab('videos'); });
+
+  function sha256(text){
+    if (!window.crypto || !crypto.subtle) return Promise.reject(new Error('nocrypto'));
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ('0'+b.toString(16)).slice(-2); }).join('');
+    });
+  }
+
+  function loadConfig(){
+    return fetch('videos.json?t='+Date.now(), { cache:'no-store' }).then(function(r){ return r.json(); }).then(function(j){
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(j)); } catch(e){}
+      return { data:j, cached:false };
+    }).catch(function(){
+      try { var c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); if (c) return { data:c, cached:true }; } catch(e){}
+      return null;
+    });
+  }
+
+  function openVideos(){
+    var unlocked = false;
+    try { unlocked = sessionStorage.getItem(UNLOCK_KEY) === '1'; } catch(e){}
+    loadConfig().then(function(res){
+      if (!res){ lockMsg.textContent = 'Could not load the video list. Check your internet and try again.'; return; }
+      cfg = res.data;
+      if (unlocked){ showList(res.cached); } else { lockBox.hidden = false; listBox.hidden = true; }
+    });
+  }
+
+  document.getElementById('vUnlock').addEventListener('click', tryUnlock);
+  passEl.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); tryUnlock(); } });
+  function tryUnlock(){
+    if (!cfg) return;
+    if (Date.now() < lockedUntil){ lockMsg.textContent = 'Please wait a few seconds and try again.'; return; }
+    sha256(passEl.value.trim()).then(function(h){
+      if (cfg.passwordHash && h === String(cfg.passwordHash).toLowerCase()){
+        try { sessionStorage.setItem(UNLOCK_KEY, '1'); } catch(e){}
+        passEl.value = ''; lockMsg.textContent = ''; fails = 0;
+        showList(false);
+      } else {
+        fails++;
+        if (fails >= 3){ lockedUntil = Date.now() + 10000; fails = 0; }
+        lockMsg.textContent = 'Wrong password.';
+      }
+    }).catch(function(){ lockMsg.textContent = 'This browser cannot check passwords (needs a secure https page).'; });
+  }
+
+  function isHttps(u){ return /^https:\/\//i.test(u || ''); }
+  function parseVideo(link){
+    if (!isHttps(link)) return null;
+    var m;
+    if ((m = /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/i.exec(link))){
+      return { type:'frame', src:'https://www.youtube-nocookie.com/embed/'+m[1]+'?autoplay=1&rel=0', thumb:'https://i.ytimg.com/vi/'+m[1]+'/hqdefault.jpg' };
+    }
+    if ((m = /drive\.google\.com\/file\/d\/([\w-]+)/i.exec(link))){
+      return { type:'frame', src:'https://drive.google.com/file/d/'+m[1]+'/preview', thumb:'' };
+    }
+    if ((m = /vimeo\.com\/(?:video\/)?(\d+)/i.exec(link))){
+      return { type:'frame', src:'https://player.vimeo.com/video/'+m[1]+'?autoplay=1', thumb:'' };
+    }
+    if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(link)) return { type:'file', src:link, thumb:'' };
+    return { type:'link', src:link, thumb:'' };
+  }
+  function okImg(u){ return isHttps(u) || /^[\w\-\/]+\.(png|jpe?g|webp|gif)$/i.test(u || ''); }
+
+  function showList(fromCache){
+    lockBox.hidden = true; listBox.hidden = false;
+    var raw = (cfg.videos || []).filter(function(v){ return v && v.enabled !== false && parseVideo(v.link); });
+    // Anything you type in videos.json wins; blanks are filled from the link preview.
+    var vids = raw.map(function(v){
+      var p = pv[v.link] || {}, info = parseVideo(v.link);
+      return {
+        link: v.link,
+        title: v.title || p.title || 'Video',
+        description: v.description || p.description || '',
+        category: v.category || 'Videos',
+        date: v.date || p.date || '',
+        thumbnail: v.thumbnail || p.image || info.thumb || ''
+      };
+    });
+    vids.sort(function(a,b){ return String(b.date||'') < String(a.date||'') ? -1 : 1; });
+    fetchPreviews(raw, fromCache);
+    var cats = ['All'];
+    vids.forEach(function(v){ var c = v.category || 'Other'; if (cats.indexOf(c) < 0) cats.push(c); });
+    chipsEl.innerHTML = '';
+    cats.forEach(function(c){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'vchip'; b.textContent = c;
+      b.setAttribute('aria-pressed', String(c === filter));
+      b.addEventListener('click', function(){ filter = c; showList(fromCache); });
+      chipsEl.appendChild(b);
+    });
+    itemsEl.innerHTML = '';
+    var shown = vids.filter(function(v){ return filter === 'All' || (v.category || 'Other') === filter; });
+    if (!shown.length){
+      var p = document.createElement('p'); p.className = 'empty'; p.textContent = 'No videos yet'; itemsEl.appendChild(p);
+    }
+    shown.forEach(function(v){ itemsEl.appendChild(buildCard(v)); });
+    noteEl.textContent = fromCache ? 'Offline: showing the last saved list. Videos need internet to play.' : '';
+  }
+
+  function buildCard(v){
+    var info = parseVideo(v.link);
+    var card = document.createElement('div'); card.className = 'vcard';
+    var media = document.createElement('div');
+    var thumbSrc = okImg(v.thumbnail) ? v.thumbnail : info.thumb;
+    if (info.type === 'link'){
+      var a0 = document.createElement('a'); a0.className = 'vthumb'; a0.href = info.src; a0.target = '_blank'; a0.rel = 'noopener noreferrer';
+      if (thumbSrc){ var im0 = document.createElement('img'); im0.loading = 'lazy'; im0.alt = ''; im0.src = thumbSrc; a0.appendChild(im0); }
+      media.appendChild(a0);
+    } else {
+      var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'vthumb'; btn.setAttribute('aria-label', 'Play ' + v.title);
+      if (thumbSrc){ var im = document.createElement('img'); im.loading = 'lazy'; im.alt = ''; im.src = thumbSrc; im.onerror = function(){ im.remove(); }; btn.appendChild(im); }
+      var pl = document.createElement('div'); pl.className = 'vplay'; pl.innerHTML = '<span>&#9654;</span>'; btn.appendChild(pl);
+      btn.addEventListener('click', function(){
+        var box = document.createElement('div'); box.className = 'vplayer';
+        if (info.type === 'frame'){
+          var f = document.createElement('iframe');
+          f.src = info.src; f.title = v.title; f.allowFullscreen = true;
+          f.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; encrypted-media');
+          f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-popups');
+          f.referrerPolicy = 'strict-origin-when-cross-origin';
+          box.appendChild(f);
+        } else {
+          var vd = document.createElement('video'); vd.src = info.src; vd.controls = true; vd.autoplay = true; vd.playsInline = true; box.appendChild(vd);
+        }
+        media.replaceChildren(box);
+      });
+      media.appendChild(btn);
+    }
+    card.appendChild(media);
+    var body = document.createElement('div'); body.className = 'vbody';
+    var meta = document.createElement('div'); meta.className = 'vmeta';
+    var tag = document.createElement('span'); tag.className = 'vtag'; tag.textContent = v.category || 'Other'; meta.appendChild(tag);
+    if (v.date && /^\d{4}-\d{2}-\d{2}$/.test(v.date)){
+      var d = document.createElement('span');
+      d.textContent = new Date(v.date + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+      meta.appendChild(d);
+    }
+    body.appendChild(meta);
+    var h = document.createElement('h3'); h.className = 'vtitle'; h.textContent = v.title; body.appendChild(h);
+    if (v.description){ var ds = document.createElement('p'); ds.className = 'vdesc'; ds.textContent = v.description; body.appendChild(ds); }
+    var open = document.createElement('a'); open.className = 'vopen'; open.href = v.link; open.target = '_blank'; open.rel = 'noopener noreferrer'; open.textContent = 'Open in new tab';
+    body.appendChild(open);
+    card.appendChild(body);
+    return card;
+  }
+})();
+</script>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var HC = { A:'#ffb81c', B:'#2bb8c6', C:'#8479ff', Day:'#ffd66b', Night:'#7f92e8' };
+  var NAMES = { A:'5 AM – 1 PM', B:'1 PM – 9 PM', C:'9 PM – 5 AM', Day:'5 AM – 5 PM', Night:'5 PM – 5 AM' };
+  var NS = 'http://www.w3.org/2000/svg';
+  var arcsEl = document.getElementById('dialArcs'), ticksEl = document.getElementById('dialTicks');
+  var handEl = document.getElementById('dialHand'), dial = document.getElementById('dial');
+  var root = document.documentElement;
+
+  function shiftNow(d){
+    var h = d.getHours();
+    return { main: h >= 5 && h < 13 ? 'A' : (h >= 13 && h < 21 ? 'B' : 'C'), half: h >= 5 && h < 17 ? 'Day' : 'Night' };
+  }
+  function mk(tag, attrs){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+  // rings: outer = A/B/C (8 h each), inner = Day/Night (12 h each); 0:00 is at the top
+  var segs = {};
+  function addSeg(key, startH, hours, r){
+    var C = 2 * Math.PI * r, gap = 3, len = Math.max(1, hours / 24 * C - gap);
+    var c = mk('circle', { cx:0, cy:0, r:r, class:'seg', stroke:HC[key],
+      'stroke-dasharray': len + ' ' + C, 'stroke-dashoffset': len,
+      transform:'rotate(' + (startH / 24 * 360 - 90 + 1) + ')' });
+    c.dataset.len = len;
+    arcsEl.appendChild(c);
+    segs[key] = c;
+  }
+  addSeg('A', 5, 8, 104); addSeg('B', 13, 8, 104); addSeg('C', 21, 8, 104);
+  addSeg('Day', 5, 12, 84); addSeg('Night', 17, 12, 84);
+  [['12a',0],['6a',6],['12p',12],['6p',18]].forEach(function(t){
+    var a = t[1] / 24 * 2 * Math.PI - Math.PI / 2;
+    var tx = mk('text', { x: Math.cos(a) * 124, y: Math.sin(a) * 124 + 3, 'text-anchor':'middle' });
+    tx.textContent = t[0];
+    ticksEl.appendChild(tx);
+  });
+
+  function update(first){
+    var now = new Date(), cur = shiftNow(now);
+    Object.keys(segs).forEach(function(k){
+      segs[k].classList.toggle('dim', k !== cur.main && k !== cur.half);
+    });
+    var deg = (now.getHours() + now.getMinutes() / 60) / 24 * 360;
+    handEl.style.transform = 'rotate(' + deg + 'deg)';
+    var L = document.getElementById('dialLetter');
+    L.textContent = cur.main; L.style.color = HC[cur.main];
+    document.getElementById('dialTime').textContent = now.toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit' }).toUpperCase();
+    document.getElementById('dialRange').textContent = NAMES[cur.main];
+    // page accent follows the shift that is on right now
+    var k = cur.main.toLowerCase();
+    root.style.setProperty('--accent', 'var(--shift-' + k + ')');
+    root.style.setProperty('--accent-fg', 'var(--on-' + k + ')');
+    dial.setAttribute('aria-label', 'Shift ' + cur.main + ' is on now, ' + NAMES[cur.main]);
+  }
+  document.getElementById('heroDate').textContent = new Date().toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
+
+  // the one orchestrated moment: rings draw in, hand sweeps from midnight to now
+  handEl.style.transform = 'rotate(0deg)';
+  if (reduce){
+    Object.keys(segs).forEach(function(k){ segs[k].style.strokeDashoffset = 0; });
+    update(true); dial.classList.add('ready');
+  } else {
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      var i = 0;
+      Object.keys(segs).forEach(function(k){
+        segs[k].style.transitionDelay = (i++ * 0.12) + 's, 0s';
+        segs[k].style.strokeDashoffset = 0;
+      });
+      update(true);
+      dial.classList.add('ready');
+    }); });
+  }
+  setInterval(function(){ update(false); }, 30000);
+
+  // hero numbers mirror the monthly summary and count up when they change
+  function fmt(n){ return String(Math.round(n * 100) / 100); }
+  function countTo(el, to){
+    var from = parseFloat(el.dataset.v || '0') || 0;
+    el.dataset.v = to;
+    if (reduce || from === to){ el.textContent = fmt(to); return; }
+    var t0 = performance.now(), dur = 700;
+    (function step(t){
+      var k = Math.max(0, Math.min(1, (t - t0) / dur)); k = 1 - Math.pow(1 - k, 3);
+      el.textContent = fmt(from + (to - from) * k);
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+  function num(id){ return parseFloat((document.getElementById(id) || {}).textContent) || 0; }
+  function mirror(){
+    countTo(document.getElementById('heroDuty'), num('totalDays'));
+    countTo(document.getElementById('heroOt'), num('totalOt'));
+    countTo(document.getElementById('heroMeals'), num('totalLunch') + num('totalDinner'));
+  }
+  var timer = null;
+  var mo = new MutationObserver(function(){ clearTimeout(timer); timer = setTimeout(mirror, 30); });
+  ['totalDays','totalOt','totalLunch','totalDinner'].forEach(function(id){
+    mo.observe(document.getElementById(id), { childList:true, characterData:true, subtree:true });
+  });
+  setTimeout(mirror, 350);
+
+  // small confirmation after saving
+  var toast = document.getElementById('toast'), toastMsg = document.getElementById('toastMsg'), tt = null;
+  window.showToast = function(msg){
+    toastMsg.textContent = msg;
+    toast.classList.add('on');
+    clearTimeout(tt);
+    tt = setTimeout(function(){ toast.classList.remove('on'); }, 1900);
+  };
 })();
 </script>
 
