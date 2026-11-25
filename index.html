@@ -418,7 +418,7 @@ body{background:var(--bg)}
             <option value="C">C Shift (9 PM – 5 AM)</option>
             <option value="Day">Day Shift (5 AM – 5 PM)</option>
             <option value="Night">Night Shift (5 PM – 5 AM)</option>
-            <option value="Leave">Leave / ছুটি</option>
+            <option value="Leave">Leave</option>
           </select>
         </div>
       </div>
@@ -794,14 +794,8 @@ body{background:var(--bg)}
     if (shiftEl.disabled) return;
     if (!findByDate(dateEl.value)){
       otEl.value = autoOtFor(shiftEl.value);
-      if (shiftEl.value === 'Leave'){
-        setMealToggle(lunchBtn, false);
-        setMealToggle(dinnerBtn, false);
-      }
     }
     otEl.disabled = shiftEl.value === 'Leave';
-    lunchBtn.disabled = shiftEl.value === 'Leave';
-    dinnerBtn.disabled = shiftEl.value === 'Leave';
   });
 
   editBtn.addEventListener('click', function(){
@@ -810,8 +804,6 @@ body{background:var(--bg)}
     editingId = existing.id;
     setFieldsDisabled(false);
     otEl.disabled = existing.shift === 'Leave';
-    lunchBtn.disabled = existing.shift === 'Leave';
-    dinnerBtn.disabled = existing.shift === 'Leave';
     lockMsg.hidden = true;
     saveBtn.hidden = false;
     saveBtn.textContent = 'Update Entry';
@@ -868,8 +860,6 @@ body{background:var(--bg)}
     setMealToggle(dinnerBtn, !!e.dinner);
     setFieldsDisabled(false);
     otEl.disabled = e.shift === 'Leave';
-    lunchBtn.disabled = e.shift === 'Leave';
-    dinnerBtn.disabled = e.shift === 'Leave';
     lockMsg.hidden = true;
     saveBtn.hidden = false;
     saveBtn.textContent = 'Update Entry';
